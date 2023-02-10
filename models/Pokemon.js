@@ -1,5 +1,5 @@
-const { Model, DataTypes } = require('sequelize')
-const db = require('../db/db')
+const { Sequelize, Model, DataTypes } = require('sequelize')
+const {db} = require('../db/db')
 
 class Pokemon extends Model {}
 
@@ -27,6 +27,7 @@ Pokemon.init({
     DefenceStat: {
         type: DataTypes.INTEGER,
     }
-}, {sequlize: db})
+}, {sequelize: db,
+    modelName: 'Pokemon'})
 
 module.exports = {Pokemon}

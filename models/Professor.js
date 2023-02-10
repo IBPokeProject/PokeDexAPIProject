@@ -1,5 +1,5 @@
-const { Model, DataTypes } = require('sequelize')
-const db = require('../db/db')
+const { Sequelize, Model, DataTypes } = require('sequelize')
+const {db} = require('../db/db')
 
 class Professor extends Model {}
 
@@ -21,6 +21,7 @@ Professor.init({
         type: DataTypes.STRING,
         allowNull: false,
     }
-}, {sequelize: db})
+}, {sequelize: db,
+    modelName: 'Professor'})
 
 module.exports = {Professor}

@@ -7,10 +7,9 @@ const db = new Sequelize({
     logging: false
 });
 
-module.exports = {
-    db,
-    Sequelize
-};
+module.exports = 
+    {db}
+;
 
 
 
