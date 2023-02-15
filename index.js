@@ -7,6 +7,7 @@ const bcrypt = require("bcrypt");
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
 require('dotenv').config()
+const SALT_COUNT = 5;
 
 app.use(cors());
 app.use(express.json())
@@ -35,8 +36,24 @@ const setProfessor = async (req, res, next) => {
     }
 }
 
+// Register endpoint
+app.post('/register', )
+
+// Login endpoint
+
 // Set the new pokemon added with the specific profId
-app.post('/pok')
+app.post('/pokemon', setProfessor, async(req, res, next) => {
+    if (!req.user){
+        res.sendStatus(401)
+    }
+    else {
+        const {Name, Type, StageOfEvolution, AttackStat, DefenceStat} = req.body
+        const pokemon = await Pokemon.create({Name, Type, StageOfEvolution, AttackStat, DefenceStat, profId: req.user.Id})
+        res.send({Id: pokemon.Id, Name: pokemon.Name, Type: pokemon.Type, StageOfEvolution: pokemon.StageOfEvolution, AttackStat: pokemon.AttackStat, DefenceStat: pokemon.DefenceStat})
+    }
+})
+
+
 
 
 
