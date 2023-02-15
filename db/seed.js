@@ -57,20 +57,18 @@ async function seed(){
 
     await Professor.bulkCreate([
         {
-            Name: 'Samuel Oak',
-            Region: 'Kanto',
-            Study: 'The Study of Relationships Between People and Pokémon'
+            Username: 'Oak4Life',
+            Password: 'RUBoyOrGirl?123',
+            Role: 'Admin'
             
         },
         {
-            Name: 'Augustine Sycamore',
-            Region: 'Kalos',
-            Study: 'The Study of Mega Evolution'
+            Username: 'SycamoreLifeMorePokemon',
+            Password: 'IlovePokemon123!',
         },
         {
-            Name: 'Aurea Juniper',
-            Region: 'Unova',
-            Study: 'The Study of the Origins of Pokemon'
+            Username: 'JuniperBerry69',
+            Password: 'Unova4Eva',
         },
     ])
 

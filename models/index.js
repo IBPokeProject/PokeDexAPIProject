@@ -3,7 +3,7 @@ const {Professor} = require("./Professor")
 const {db} = require("../db/db")
 
 
-Pokemon.belongsTo(Professor); // Pokemon table, there will be an profId <- FK
+Pokemon.belongsTo(Professor, {foreignKey: 'profId'});
 Professor.hasMany(Pokemon);
 
 module.exports = {Pokemon, Professor, db}

@@ -9,17 +9,16 @@ Professor.init({                        // setting up the professor table to be 
         primaryKey: true,
         autoIncrement: true
     },
-    Name: {                                                 
+    Username: {                                                 
         type: DataTypes.STRING,
         allowNull: false 
     },
-    Region: {
+    Password: {
         type: DataTypes.STRING,
         allowNull: false,
     },
-    Study: {
+    Role: {
         type: DataTypes.STRING,
-        allowNull: false,
     }
 }, {sequelize: db,
     modelName: 'Professor'})
