@@ -4,27 +4,27 @@ const {db} = require('../db/db')
 class Pokemon extends Model {}
 
 Pokemon.init({                                      //setting up the pokemon table to be seeded with data 
-    Id: {
+    id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true
     },
-    Name: {
+    name: {
         type: DataTypes.STRING,
         allowNull: false
     },
-    Type: {
+    type: {
         type: DataTypes.STRING,
         allowNull: false
     },
-    StageOfEvolution: {
+    evolution: {
         type: DataTypes.STRING,
         allowNull: false
     },
-    AttackStat: {
+    attack: {
         type: DataTypes.INTEGER,
     },
-    DefenceStat: {
+    defence: {
         type: DataTypes.INTEGER,
     }
 }, {sequelize: db,

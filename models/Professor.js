@@ -4,21 +4,23 @@ const {db} = require('../db/db')
 class Professor extends Model {}
 
 Professor.init({                        // setting up the professor table to be seeded with data
-    Id: {
+    id: {
         type:DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true
     },
-    Username: {                                                 
+    username: {                                                 
         type: DataTypes.STRING,
         allowNull: false 
     },
-    Password: {
+    password: {
         type: DataTypes.STRING,
         allowNull: false,
     },
-    Role: {
+    role: {
         type: DataTypes.STRING,
+        defaultValue: "Assistant",
+        allowNull: false,
     }
 }, {sequelize: db,
     modelName: 'Professor'})

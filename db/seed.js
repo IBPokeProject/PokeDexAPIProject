@@ -1,5 +1,5 @@
 const {Pokemon} = require('../models')
- const {Professor} = require('../models')
+//  const {Professor} = require('../models')
 const {db} = require('../db/db')
 
 
@@ -10,47 +10,33 @@ async function seed(){
     
     await Pokemon.bulkCreate([
         {
-            Name: "Vaporeon" ,
-            Type: "Water",
-            StageOfEvolution: "2/2",
-            AttackStat: 65 ,
-            DefenceStat: 60
+            name: "Vaporeon" ,
+            type: "Water",
+            evolution: "2/2",
+            attack: 65 ,
+            defence: 60
             
         },
         {
-            Name: "Infernape" ,
-            Type: "Fire,Fighting",
-            StageOfEvolution: "3/3",
-            AttackStat: 104 ,
-            DefenceStat: 71
+            name: "Infernape" ,
+            type: "Fire,Fighting",
+            evolution: "3/3",
+            attack: 104 ,
+            defence: 71
         },
         {
-            Name: "Luxray" ,
-            Type: "Electric",
-            StageOfEvolution: "3/3",
-            AttackStat: 120 ,
-            DefenceStat: 79
+            name: "Luxray" ,
+            type: "Electric",
+            evolution: "3/3",
+            attack: 120 ,
+            defence: 79
         },
         {
-            Name: "Gengar" ,
-            Type: "Ghost,Poision",
-            StageOfEvolution: "3/3",
-            AttackStat: 65 ,
-            DefenceStat: 60
-        },
-        {
-            Name: "Ralts" ,
-            Type: "Psychic,Fairy",
-            StageOfEvolution: "1/3",
-            AttackStat: 25 ,
-            DefenceStat: 25
-        },
-        {
-            Name: "Machamp" ,
-            Type: "Fighting",
-            StageOfEvolution: "3/3",
-            AttackStat: 130 ,
-            DefenceStat: 80
+            name: "Gengar" ,
+            type: "Ghost,Poision",
+            evolution: "3/3",
+            attack: 65 ,
+            defence: 60
         }
     ])
 

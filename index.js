@@ -14,9 +14,18 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }));
 const JWTtoken = process.env.SECRET
 
-app.put("/", async (req,res) => {
+app.get("/", async (req,res) => {
     res.send("<h1>Welcome to Oak's Pokedex!<h1><h2>Login to Oak's Pokedex using /login, Or if you're a new scientist here use /register<h2><p>Happy Catching!<p>")
 })
+
+// What can a user do?
+// - Post a new pokemon [X]
+// - Delete their pokemon []
+// - Update thier pokemon []
+// What can an admin do?
+// - Post a new pokemon [X]
+// - Delete ALL pokemon []
+// - Update ALL pokemon []
 
 // Middleware function to authorise and set req.user as user
 const setProfessor = async (req, res, next) => {
@@ -35,14 +44,13 @@ const setProfessor = async (req, res, next) => {
         }
     }
 }
-
 // Register endpoint
 app.post('/register', async (req, res) => {
     // Gets the username and password
     const {username, password} = req.body
     // Hash the password and create a new user with that password
     const hash = await bcrypt.hash(password, SALT_COUNT)
-    const user = await User.create({username, password: hash})
+    const user = await Professor.create({username, password: hash})
     // Generate a token for the user
     const token = jwt.sign({id: user.id, username: user.username}, process.env.JWTtoken);
     res.send({message: "Go catch them all!", token})
@@ -51,7 +59,7 @@ app.post('/register', async (req, res) => {
 // Login endpoint
 app.post('/login', async (req, res, next) => {
     const { username, password } = req.body
-    const user = await User.findOne({where: {username}})
+    const user = await Professor.findOne({where: {username}})
     const hashResult = await bcrypt.compare(password, user.password)
     if (!hashResult) {
         res.sendStatus(401)
@@ -67,13 +75,12 @@ app.post('/pokemon', setProfessor, async(req, res, next) => {
     if (!req.user){
         res.sendStatus(401)
     }
-    else {
-        const {Name, Type, StageOfEvolution, AttackStat, DefenceStat} = req.body
-        const pokemon = await Pokemon.create({Name, Type, StageOfEvolution, AttackStat, DefenceStat, profId: req.user.Id})
-        res.send({Id: pokemon.Id, Name: pokemon.Name, Type: pokemon.Type, StageOfEvolution: pokemon.StageOfEvolution, AttackStat: pokemon.AttackStat, DefenceStat: pokemon.DefenceStat})
+    else{
+        const {name, type, evolution, attack, defence} = req.body
+        const pokemon = await Pokemon.create({name, type, evolution, attack, defence, profId: req.user.id})
+        res.send({id: pokemon.id, name: pokemon.name, type: pokemon.type, evolution: pokemon.evolution, attack: pokemon.attack, defence: pokemon.defence})
     }
 })
-
 
 
 
@@ -143,7 +150,7 @@ app.post('/pokemon', setProfessor, async(req, res, next) => {
 app.listen(3000, async () =>{
     await db.sync()
     seed() 
-    console.log(process.env.SECRET);                     // Listening on port 3000
+    console.log(process.env.SECRET);                    // Listening on port 3000
     console.log("listening on port 3000")
 })
 
