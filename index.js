@@ -6,6 +6,7 @@ const { Professor, Pokemon } = require ("./models")
 const bcrypt = require("bcrypt");
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
+const { OPEN_READWRITE } = require("sqlite3")
 require('dotenv').config()
 const SALT_COUNT = 5;
 
@@ -20,7 +21,7 @@ app.get("/", async (req,res) => {
 
 // What can a user do?
 // - Post a new pokemon [X]
-// - Delete their pokemon []
+// - Delete their pokemon [X]
 // - Update thier pokemon []
 // What can an admin do?
 // - Post a new pokemon [X]
@@ -82,11 +83,47 @@ app.post('/pokemon', setProfessor, async(req, res, next) => {
     }
 })
 
+// Only same profId can delete their own added pokemon
+app.delete('/pokemon/:id', setProfessor, async (req, res, next) => {
+    const pokemon = await Pokemon.findByPk(req.params.id);
+    if (!req.user | req.user.id != pokemon.profId){
+        res.sendStatus(401)
+    }
+    else {
+        await pokemon.destroy();
+        res.send({message: 'Farewell Pokemon!'});   
+    }
 
+});
 
-
-
-
+// Update a pokemon that belongs to the specific profId
+app.put('/update', setProfessor, async (req, res, next) => {
+    if (!req.user) {
+      res.sendStatus(401);
+    } else {
+      const { id, name, attack, defence, evolution, type } = req.body;
+      const professorId = req.user.id;
+  
+      // Find the Pokemon record by ID and professor ID
+      const pokemon = await Pokemon.findOne({
+        where: { id, profId: professorId },
+      });
+  
+      if (pokemon) {
+        // Update the Pokemon record if it belongs to the professor
+        pokemon.name = name;
+        pokemon.attack = attack;
+        pokemon.defence = defence;
+        pokemon.evolution = evolution;
+        pokemon.type = type;
+        await pokemon.save();
+        res.status(200).json({ message: 'Pokemon updated successfully' });
+      } else {
+        res.status(404).json({ error: 'Pokemon not found or you are not authorized to update it' });
+      }
+    }
+  });
+  
 
 
 
@@ -155,3 +192,8 @@ app.listen(3000, async () =>{
 })
 
 module.exports = {app}
+
+
+
+
+  
