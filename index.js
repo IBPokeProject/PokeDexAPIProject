@@ -15,7 +15,7 @@ app.use(express.urlencoded({ extended: true }));
 const JWTtoken = process.env.SECRET
 
 app.put("/", async (req,res) => {
-    res.send("<h1>Welcome to Oak's Pokedex!<h1><h2>Login to Oak's Pokedex using /login, Or if you're a new scientist here use /register<h2><p>Happy Hunting!<p>")
+    res.send("<h1>Welcome to Oak's Pokedex!<h1><h2>Login to Oak's Pokedex using /login, Or if you're a new scientist here use /register<h2><p>Happy Catching!<p>")
 })
 
 // Middleware function to authorise and set req.user as user
@@ -37,9 +37,30 @@ const setProfessor = async (req, res, next) => {
 }
 
 // Register endpoint
-app.post('/register', )
+app.post('/register', async (req, res) => {
+    // Gets the username and password
+    const {username, password} = req.body
+    // Hash the password and create a new user with that password
+    const hash = await bcrypt.hash(password, SALT_COUNT)
+    const user = await User.create({username, password: hash})
+    // Generate a token for the user
+    const token = jwt.sign({id: user.id, username: user.username}, process.env.JWTtoken);
+    res.send({message: "Go catch them all!", token})
+})
 
 // Login endpoint
+app.post('/login', async (req, res, next) => {
+    const { username, password } = req.body
+    const user = await User.findOne({where: {username}})
+    const hashResult = await bcrypt.compare(password, user.password)
+    if (!hashResult) {
+        res.sendStatus(401)
+    } else {
+        // const payload = {id: user.id, username: user.username}
+        const token = jwt.sign({id: user.id, username: user.username}, process.env.JWTtoken)
+        res.status(200).send({ message: "Welcome back Professor!", token })
+    }
+})
 
 // Set the new pokemon added with the specific profId
 app.post('/pokemon', setProfessor, async(req, res, next) => {
@@ -52,9 +73,6 @@ app.post('/pokemon', setProfessor, async(req, res, next) => {
         res.send({Id: pokemon.Id, Name: pokemon.Name, Type: pokemon.Type, StageOfEvolution: pokemon.StageOfEvolution, AttackStat: pokemon.AttackStat, DefenceStat: pokemon.DefenceStat})
     }
 })
-
-
-
 
 
 
