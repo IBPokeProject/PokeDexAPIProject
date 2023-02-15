@@ -3,13 +3,13 @@ const {db} = require('../db/db')
 
 class Professor extends Model {}
 
-Professor.init({
+Professor.init({                        // setting up the professor table to be seeded with data
     Id: {
         type:DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true
     },
-    Name: {
+    Name: {                                                 
         type: DataTypes.STRING,
         allowNull: false 
     },

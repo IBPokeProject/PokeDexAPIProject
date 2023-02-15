@@ -3,7 +3,7 @@ const {db} = require('../db/db')
 
 class Pokemon extends Model {}
 
-Pokemon.init({
+Pokemon.init({                                      //setting up the pokemon table to be seeded with data 
     Id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
