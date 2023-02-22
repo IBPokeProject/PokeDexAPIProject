@@ -1,5 +1,5 @@
 const {Pokemon} = require('../models')
-//  const {Professor} = require('../models')
+const {Professor} = require('../models')
 const {db} = require('../db/db')
 
 
@@ -41,23 +41,13 @@ async function seed(){
     ])
 
 
-//     await Professor.bulkCreate([
-//         {
-//             Username: 'Oak4Life',
-//             Password: 'RUBoyOrGirl?123',
-//             Role: 'Admin'
-            
-//         },
-//         {
-//             Username: 'SycamoreLifeMorePokemon',
-//             Password: 'IlovePokemon123!',
-//         },
-//         {
-//             Username: 'JuniperBerry69',
-//             Password: 'Unova4Eva',
-//         },
-//     ])
-
+    await Professor.bulkCreate([
+        {
+            username: 'Oak4Life',
+            password: 'ILovePokemon123',
+            role: 'Admin'
+        },
+    ])
  }
 
 

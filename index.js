@@ -6,9 +6,11 @@ const { Professor, Pokemon } = require ("./models")
 const bcrypt = require("bcrypt");
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
-const { OPEN_READWRITE } = require("sqlite3")
-require('dotenv').config()
+// const { OPEN_READWRITE } = require("sqlite3")
+
+require("dotenv").config()
 const SALT_COUNT = 5;
+
 
 app.use(cors());
 app.use(express.json())
@@ -22,15 +24,18 @@ app.get("/", async (req,res) => {
 // What can a user do?
 // - Post a new pokemon [X]
 // - Delete their pokemon [X]
-// - Update thier pokemon []
+// - Update their pokemon [X]
+// - See their pokemon [X]
 // What can an admin do?
 // - Post a new pokemon [X]
-// - Delete ALL pokemon []
-// - Update ALL pokemon []
+// - Delete ALL pokemon [X]
+// - Update ALL pokemon [X]
+// - See ALL pokemon [X]
+
 
 // Middleware function to authorise and set req.user as user
 const setProfessor = async (req, res, next) => {
-    const auth = req.header('Authorization')
+    const auth = req.header('Authorization')       // 
     if(!auth){
         return res.sendStatus(401)
     }
@@ -53,7 +58,7 @@ app.post('/register', async (req, res) => {
     const hash = await bcrypt.hash(password, SALT_COUNT)
     const user = await Professor.create({username, password: hash})
     // Generate a token for the user
-    const token = jwt.sign({id: user.id, username: user.username}, process.env.JWTtoken);
+    const token = jwt.sign({id: user.id, username: user.username}, JWTtoken);
     res.send({message: "Go catch them all!", token})
 })
 
@@ -66,7 +71,7 @@ app.post('/login', async (req, res, next) => {
         res.sendStatus(401)
     } else {
         // const payload = {id: user.id, username: user.username}
-        const token = jwt.sign({id: user.id, username: user.username}, process.env.JWTtoken)
+        const token = jwt.sign({id: user.id, username: user.username}, JWTtoken)
         res.status(200).send({ message: "Welcome back Professor!", token })
     }
 })
@@ -83,112 +88,93 @@ app.post('/pokemon', setProfessor, async(req, res, next) => {
     }
 })
 
-// Only same profId can delete their own added pokemon
+
+// Only same profId or Admin can delete their own added pokemon [X]
 app.delete('/pokemon/:id', setProfessor, async (req, res, next) => {
     const pokemon = await Pokemon.findByPk(req.params.id);
-    if (!req.user | req.user.id != pokemon.profId){
-        res.sendStatus(401)
+    const isAdminUser = await isAdmin(req.user.id);
+  
+    if (isAdminUser || req.user.id === pokemon.profId) {
+      await pokemon.destroy();
+      res.send({ message: 'Farewell Pokemon!' });
+    } else {
+      res.sendStatus(401);
     }
-    else {
-        await pokemon.destroy();
-        res.send({message: 'Farewell Pokemon!'});   
-    }
+  });
 
-});
-
-// Update a pokemon that belongs to the specific profId
-app.put('/update', setProfessor, async (req, res, next) => {
+// Update a pokemon that belongs to specific Id or update all pokemon if admin
+  app.put('/update', setProfessor, async (req, res, next) => {
     if (!req.user) {
       res.sendStatus(401);
     } else {
       const { id, name, attack, defence, evolution, type } = req.body;
       const professorId = req.user.id;
+      const isAdminUser = await isAdmin(professorId);
   
-      // Find the Pokemon record by ID and professor ID
-      const pokemon = await Pokemon.findOne({
-        where: { id, profId: professorId },
-      });
-  
-      if (pokemon) {
-        // Update the Pokemon record if it belongs to the professor
-        pokemon.name = name;
-        pokemon.attack = attack;
-        pokemon.defence = defence;
-        pokemon.evolution = evolution;
-        pokemon.type = type;
-        await pokemon.save();
-        res.status(200).json({ message: 'Pokemon updated successfully' });
-      } else {
-        res.status(404).json({ error: 'Pokemon not found or you are not authorized to update it' });
+      if (isAdminUser) { // if user is an admin, they can update all Pokemon
+        const pokemon = await Pokemon.findByPk(id);
+        if (pokemon) {
+          pokemon.name = name;
+          pokemon.attack = attack;
+          pokemon.defence = defence;
+          pokemon.evolution = evolution;
+          pokemon.type = type;
+          await pokemon.save();
+          res.status(200).json({ message: 'Pokemon updated successfully' });
+        } else {
+          res.status(404).json({ error: 'Pokemon not found' });
+        }
+      } else { // if user is not an admin, they can only update their own Pokemon
+        const pokemon = await Pokemon.findOne({
+          where: { id, profId: professorId },
+        });
+        if (pokemon) {
+          pokemon.name = name;
+          pokemon.attack = attack;
+          pokemon.defence = defence;
+          pokemon.evolution = evolution;
+          pokemon.type = type;
+          await pokemon.save();
+          res.status(200).json({ message: 'Pokemon updated successfully' });
+        } else {
+          res.status(404).json({ error: 'Pokemon not found or you are not authorized to update it' });
+        }
       }
     }
   });
   
 
+// Get all Pokemon belonging to the specific profId or all Pokemon if user is admin [X]
+app.get('/pokemon/view', setProfessor, async (req, res, next) => {
+    if (!req.user) {
+      res.sendStatus(401);
+    } else {
+      if (await isAdmin(req.user.id)) { // check if user is an admin
+        const pokemon = await Pokemon.findAll();
+        res.status(200).json(pokemon);
+      } else { // if not an admin, return Pokemon belonging to profId
+        const professorId = req.user.id;
+        const pokemon = await Pokemon.findAll({
+          where: { profId: professorId },
+        });
+        res.status(200).json(pokemon);
+      }
+    }
+  });
+  
+  
+// Reading all Professors from the database
+app.get("/professor", async (req, res) => {
+    const professor = await Professor.findAll()
+    res.send(professor)
+})
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// app.get("/professor", async (req, res) => {       // Reading all Professors from the database
-//     const professor = await Professor.findAll()
-//     res.send(professor)
-// })
-
-// app.delete("/professor/delete/:deleteid", async (req, res) => {
-//     const requestedDelete = await Professor.findByPk(req.params.deleteid)    //Deleting Professors from the Database
-//     await requestedDelete.destroy()
-//     res.status(200).send("Sucessfully deleted professor")
-// })
-
-// app.post("/professor/add",async (req, res) => {
-//     try{
-//         const professor = await Professor.create(req.body)
-//         res.status(200).send({user})
-//     } catch(error) {
-//         res.status(500).send(error)
-//     }
-// })
-
-// app.get("/pokemon", async (req, res) => {
-//     const pokemon = await Pokemon.findAll()         // Reading all Pokemon from the database
-//     res.send(Pokemon)
-// })
-
-// app.delete("/pokemon/delete/:deleteid", async (req, res) => {
-//     const requestedDelete = await Pokemon.findByPk(req.params.deleteid)    //Deleting Pokemon from the Database
-//     await requestedDelete.destroy()
-//     res.status(200).send("Sucessfully deleted pokemon")
-// })
-
-// // app.put("/update/:updateid", async (req, res) => {
-// //     const requestedUpdate = await Professor.findByPk(req.params.updateid)    //editing entries in the database
-// //     await requestedUpdate.update({status: req.params.status})
-// //     res.send(200).send("successfully updated")
-// // })
-
-// // update -> name, study, region, or pokemon id linked to it
-// //  two updates? one will be like /update/pokemon/:id
-// //  /update/:const <- name study region
-// //  if re.params.const == name, update name w/ body?
-// // if not then update region or study with the body
-
-app.listen(3000, async () =>{
+app.listen(3001, async () =>{
     await db.sync()
     seed() 
-    console.log(process.env.SECRET);                    // Listening on port 3000
-    console.log("listening on port 3000")
+    console.log(process.env.SECRET);               // Listening on port 3000
+    console.log("listening on port 3001")
 })
 
 module.exports = {app}

@@ -3,7 +3,7 @@ const {db} = require('../db/db')
 
 class Professor extends Model {}
 
-Professor.init({                        // setting up the professor table to be seeded with data
+Professor.init({                   // setting up the professor table to be seeded with data
     id: {
         type:DataTypes.INTEGER,
         primaryKey: true,
@@ -20,7 +20,6 @@ Professor.init({                        // setting up the professor table to be 
     role: {
         type: DataTypes.STRING,
         defaultValue: "Assistant",
-        allowNull: false,
     }
 }, {sequelize: db,
     modelName: 'Professor'})
