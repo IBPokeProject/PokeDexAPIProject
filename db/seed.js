@@ -1,7 +1,7 @@
 const {Pokemon} = require('../models')
 const {Professor} = require('../models')
 const {db} = require('../db/db')
-
+const bcrypt = require('bcrypt')
 
 async function seed(){
     await db.sync({
@@ -40,16 +40,16 @@ async function seed(){
         }
     ])
 
-
+    const hash = await bcrypt.hash('ILovePokemon123', 5)
     await Professor.bulkCreate([
         {
             username: 'Oak4Life',
-            password: 'ILovePokemon123',
+            password: hash,
             role: 'Admin'
         },
     ])
  }
-
+ 
 
 
 module.exports = {seed}

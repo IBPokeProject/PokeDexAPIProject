@@ -6,6 +6,7 @@ const { Professor, Pokemon } = require ("./models")
 const bcrypt = require("bcrypt");
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
+const {isAdmin} = require('./isAdmin')
 // const { OPEN_READWRITE } = require("sqlite3")
 
 require("dotenv").config()
@@ -18,7 +19,7 @@ app.use(express.urlencoded({ extended: true }));
 const JWTtoken = process.env.SECRET
 
 app.get("/", async (req,res) => {
-    res.send("<h1>Welcome to Oak's Pokedex!<h1><h2>Login to Oak's Pokedex using /login, Or if you're a new scientist here use /register<h2><p>Happy Catching!<p>")
+    res.send("<h1>Welcome to Oak's Pokedex!<h1><h2>Login to Oak's Pokedex using /login, Or if you're a new professor here use /register<h2><p>Happy Catching!<p>")
 })
 
 // What can a user do?
@@ -50,6 +51,7 @@ const setProfessor = async (req, res, next) => {
         }
     }
 }
+
 // Register endpoint
 app.post('/register', async (req, res) => {
     // Gets the username and password
